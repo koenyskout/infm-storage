@@ -1,5 +1,5 @@
 # Oefeningen over gegevensopslag
-> Informatiemanagement (4999) 2024-2025 
+> Informatiemanagement (4999)
 > 
 > KU Leuven, Campus Diepenbeek
 >
