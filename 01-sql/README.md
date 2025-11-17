@@ -32,6 +32,11 @@ De database gaat over films; je ziet links in DB Code (onder postgres > Schemas 
 
 ## Oefeningen deel 1: SELECT
 
+Om een query te schrijven en uit te voeren, maak je een bestand `oef1.sql` waarin je je query plaatst.
+Vervolgens kan je op 'Execute' drukken om de query uit te voeren.
+Kies 'Beside the editor' voor het weergeven van resultaten.
+
+
 ### Oefening 1
 Selecteer alle films.
 
