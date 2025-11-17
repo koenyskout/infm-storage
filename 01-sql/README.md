@@ -2,20 +2,19 @@
 
 ## Setup
 
-1. Download en installeer Beekeeper Studio Community Edition: [https://www.beekeeperstudio.io/get-community](https://www.beekeeperstudio.io/get-community). *Je hoeft geen mail-adres in te geven; klik op 'Skip to the download'.*
-Beekeeper is een eenvoudige GUI om SQL uit te voeren op een database (maar dat kan bv. evengoed via een Python-programma).
+1. Download en installeer de extensie 'DBCode' in VS Code.
 
 2. Open een commandoprompt in de folder waarin dit README.md bestand staat (01-sql), en start de database met het commando
 `docker compose up`.
 
-3. Open Beekeeper en maak een nieuwe verbinding
+3. Open de DB Code tab in VS Code en maak een nieuwe verbinding
 - type: Postgres
 - host: localhost
 - port: 5432
 - username: postgres
 - wachtwoord: postgres
 
-De database gaat over films; je ziet links in Beekeeper een lijst met de tabellen in de database.
+De database gaat over films; je ziet links in DB Code (onder postgres > Schemas > public > Tables) een lijst met de tabellen in de database.
 
 4. Verken eerst de database manueel door op de verschillende tabelnamen te (dubbel)klikken.
 
