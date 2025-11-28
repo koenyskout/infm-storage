@@ -1,0 +1,32 @@
+{
+    "BROKER_URL": "mqtt-broker",
+    "BROKER_PORT": 1883,
+    "TOPICS": [
+        {
+            "TYPE": "list",
+            "PREFIX": "mqtt-sim/home/climate",
+            "LIST": ["living_room", "bedroom", "kitchen", "attic", "basement"],
+            "TIME_INTERVAL": 8,
+            "DATA": [
+                {
+                    "NAME": "temperature",
+                    "TYPE": "float",
+                    "MIN_VALUE": 20,
+                    "MAX_VALUE": 35,
+                    "MAX_STEP": 1,
+                    "RETAIN_PROBABILITY": 0.5,
+                    "INCREASE_PROBABILITY": 0.4
+                },
+                {
+                    "NAME": "humidity",
+                    "TYPE": "float",
+                    "MIN_VALUE": 45,
+                    "MAX_VALUE": 65,
+                    "MAX_STEP": 1,
+                    "RETAIN_PROBABILITY": 0.5,
+                    "INCREASE_PROBABILITY": 0.6
+                }
+            ]
+        }
+    ]
+}

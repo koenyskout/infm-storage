@@ -1,2 +1,6 @@
-influxdb2_data
-dummy_datasource/.venv
+data/influxdb2_data
+data/mosquitto-data
+data/mosquitto-logs
+*.pyc
+venv/
+__pycache__/

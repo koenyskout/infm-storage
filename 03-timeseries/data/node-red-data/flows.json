@@ -1,0 +1,213 @@
+[
+    {
+        "id": "4c120312837f3788",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "104ce2aa067d2950",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "mqtt-broker",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "94bf4275031f6b61",
+        "type": "influxdb",
+        "hostname": "influxdb",
+        "port": 8086,
+        "protocol": "http",
+        "database": "timeseries",
+        "name": "",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "1.x",
+        "url": "http://influxdb:8086",
+        "timeout": 10,
+        "rejectUnauthorized": false
+    },
+    {
+        "id": "5d53b62e338f2964",
+        "type": "mqtt in",
+        "z": "4c120312837f3788",
+        "name": "",
+        "topic": "mqtt-sim/home/climate/#",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "104ce2aa067d2950",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 230,
+        "y": 360,
+        "wires": [
+            [
+                "5dd59119cbbe0793"
+            ]
+        ]
+    },
+    {
+        "id": "79532229313f62ef",
+        "type": "influxdb out",
+        "z": "4c120312837f3788",
+        "influxdb": "94bf4275031f6b61",
+        "name": "",
+        "measurement": "",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "database",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "infm",
+        "bucket": "timeseries",
+        "x": 830,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "5dd59119cbbe0793",
+        "type": "change",
+        "z": "4c120312837f3788",
+        "name": "Prepare InfluxDB",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "[payload, {\t    \"room\": $split(topic, '/')[3]\t}]",
+                "tot": "jsonata"
+            },
+            {
+                "t": "set",
+                "p": "measurement",
+                "pt": "msg",
+                "to": "climate",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 510,
+        "y": 360,
+        "wires": [
+            [
+                "79532229313f62ef"
+            ]
+        ]
+    },
+    {
+        "id": "df1b2e0dbdf3e855",
+        "type": "influxdb in",
+        "z": "4c120312837f3788",
+        "influxdb": "94bf4275031f6b61",
+        "name": "",
+        "query": "SELECT MEAN(temperature) AS avg_temp FROM climate WHERE time >= now() - 30s GROUP BY room",
+        "rawOutput": false,
+        "precision": "",
+        "retentionPolicy": "",
+        "org": "infm",
+        "x": 510,
+        "y": 440,
+        "wires": [
+            [
+                "fc469e51ae63a9e7"
+            ]
+        ]
+    },
+    {
+        "id": "3ae8373bc3fd8d71",
+        "type": "debug",
+        "z": "4c120312837f3788",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 880,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "638de3d31acef8c6",
+        "type": "inject",
+        "z": "4c120312837f3788",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 280,
+        "y": 440,
+        "wires": [
+            [
+                "df1b2e0dbdf3e855"
+            ]
+        ]
+    },
+    {
+        "id": "fc469e51ae63a9e7",
+        "type": "split",
+        "z": "4c120312837f3788",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "property": "payload",
+        "x": 730,
+        "y": 440,
+        "wires": [
+            [
+                "3ae8373bc3fd8d71"
+            ]
+        ]
+    }
+]

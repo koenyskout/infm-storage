@@ -2,100 +2,105 @@
 
 ## Setup
 
-1. Ga in een Command prompt naar de folder waarin deze README staat.
+1. Open deze folder in VS Code.
 
-> Navigeren naar een folder kan je doen met het commando `cd`.
-> Tip: gebruik de Tab-toets om het pad aan te vullen.
-> 
-> Bijvoorbeeld, als je naar de folder `C:\Users\me\Downloads\03-timeseries` wil gaan, 
-> en je staat al in `C:\Users\me`, dan typ je `cd Downloads\03-timeseries`.
-> Het volstaat waarschijnlijk om `cd Dow<tab>\03<tab>` te typen.
->
-> Indien je naar de bovenliggende folder wil gaan, typ je `cd ..`. Bijvoorbeld, als je in `C:\Users\me\Downloads\03-timeseries` staat en `cd ..` typt, ga je naar `C:\Users\me\Downloads`.
+2. Open een terminal (je zou in deze folder moeten staan)
 
-2. Start alle Docker containers via
-`docker compose up --build` in de folder van deze README. Dit start 4 containers die met mekaar communiceren, namelijk
-- Dummy datasource (een Python-script dat data genereert en verstuurt via MQTT)
-- Mosquitto (een lokale MQTT broker)
-- Telegraf (een agent om data uit MQTT in te voegen in de database)
-- InfluxDB (de time series database)
-
-![containers](./images/docker-containers.png)
+3. Start alle Docker containers via
+`docker compose up --build --watch`. Dit start 5 containers die met mekaar communiceren, namelijk
+    - InfluxDB v2 (de time series database)
+        * Hostname `influxdb`
+        * username `admin`
+        * password `password`
+        * admintoken `password`
+        * Luistert op poort `8086`
+        * Admin interface bereikbaar via http://localhost:8086
+    - mqtt-broker (een lokale Mosquitto MQTT broker)
+        * Hostname `mqtt-broker`
+        * Luistert op poort `1883`
+    - mqtt-simulator (een Python-script dat data genereert en verstuurt naar de MQTT broker)
+    - node-red, bereikbaar op http://localhost:1880
+    - grafana (visualisatie), bereikbaar op http://localhost:3000
 
 > Het --build argument zorgt ervoor dat, als je de python-code van de generator aanpast, de image elke opnieuw gebouwd wordt voor de container gestart wordt.
 
-> Als je later opnieuw wil beginnen met de originele database,
-> - stop je de database (Ctrl-C)
-> - verwijder je de folder `influxdb2_data` die aangemaakt wordt
-> - start je de database opnieuw (`docker compose up`)
-> De originele database wordt dan opnieuw aangemaakt.
+> Het --watch argument zorgt ervoor dat de mqtt-simulator opnieuw gestart wordt als je de bestanden (bv. configuratie) daarvan wijzigt.
+
+Als je later opnieuw wil beginnen met een lege database,
+- stop je de containers (Ctrl-C), `docker compose down`
+- verwijder je de folder `influxdb2_data` die aangemaakt werd in de `data`-folder
+- start je de database opnieuw (`docker compose up --build --watch`)
 
 ## Oefeningen
 
 ### Oefening 1
 
-De data-generator simuleert een systeem om water te verwarmen.
+1. Surf naar [http://localhost:8086](http://localhost:8086) en login als `admin` met wachtwoord `password`.
+2. Ga naar de 'Data Explorer' tab
 
-![heater](./images/heater.png)
-
-Bekijk de Python-broncode van de [data-generator](./dummy_datasource/generator.py). Zorg dat je (minstens in grote lijnen) begrijpt wat er gebeurt.
-
-Hoeveel sensoren en actuatoren zijn er die data aanleveren?
+3. Klik wat rond. Welke buckets, measurements, fields en tags zie je?
 
 ### Oefening 2
 
-Bekijk het bestand [`telegraf.conf`](telegraf.conf) in deze folder (dat kan met [VS Code](https://code.visualstudio.com/), PyCharm, of een andere gewone teksteditor). Wat wordt er in dit bestand geconfigureerd?
-Kan je terugvinden hoe de data uit MQTT omgezet wordt in fields en tags?
+Maak (via de query editor) een query aan:
+- begin bij de `timeseries` bucket
+- filter op `climate` als measurement
+- filter op `temperature` als field
+- filter op `kitchen` als room
+- zet de tijdperiode op de voorbije 15 minuten (via het klokje rechtsboven)
+- zet aggregate function (in het venster rechts) op `Custom` en zet alle aggregatie-functies (bv. mean) **uit**.
+
+Druk op submit. Je krijgt een grafiek met het resultaat van je query.
 
 ### Oefening 3
 
-1. Surf naar [http://localhost:8086](http://localhost:8086) en login als `admin` met wachtwoord `password`.
-2. Ga naar de 'Data Explorer' tab, en zet 'View Raw Data' aan.
-3. Klik op 'SCRIPT EDITOR'.
-4. Doe een query om alle data van de laatste 30 seconden te bekijken:
-```flux
-from(bucket: "timeseries")
-|> range(start: -30s)
-```
+De ingebouwde data explorer van InfluxDB gebruikt Flux als query-taal.
+
+Welke InfluxQL query komt overeen met bovenstaande vraag?
 
 ### Oefening 4
 
-Hoeveel tabellen zitten er in het resultaat van oefening 3? (Kijk naar de eerste kolom in het resultaat)
+Open Node-RED (http://localhost:1880) en bekijk de flow. Hoe wordt de data vanuit MQTT naar de database gestuurd?
 
 ### Oefening 5
-
-Maak een query die de gemiddelde waarde van *alle sensoren* van de laatste 30 seconden teruggeeft.
+Bestudeer de query in de `influxdb in` node. Wat doet deze?
+Voer de query uit door op de Inject-node te klikken.
 
 ### Oefening 6
 
-Maak een query die, van de laatste 5 minuten in periodes van 30 seconden, de gemiddelde waarde van *alle sensoren* teruggeeft.
+Open Grafana (http://localhost:3000) en voeg InfluxDB als data source toe met volgende parameters.
+- Query language: **InfluxQL**
+- URL: http://influxdb:8086
+- Database: timeseries
+- User: admin
+- Password: password
+
+Klik op "Save & test".
 
 ### Oefening 7
 
-Maak een query die, van de laatste 5 minuten in periodes van 30 seconden, de gemiddelde temperatuur gemeten door `water_temp_sensor_01` in elk van die periodes teruggeeft.
+In Grafana kunnen we wél met InfluxQL als query-taal werken. Grafana biedt hiervoor een visuele editor.
+
+Ga naar de `Explore' tab en bouw een query die de temperatuur van de laatste 15 minuten teruggeeft, gegroepeerd per ruimte.
+
+_Hint_: filteren op tijd doe je in Grafana via het klokje rechtsboven (daar kan je bv. ); niet rechtstreeks in de WHERE-clausule van je query.
 
 ### Oefening 8
 
-Zet 'View Raw Data' uit. Je ziet nu het resultaat als een grafiek in plaats van als een tabel.
+Maak een query die alle gemeten luchtvochtigheidswaarden in de leefruimte teruggeeft van de laatste 30 minuten.
 
 ### Oefening 9
 
-Maak een query (en grafiek) die het *moving average* van het waterniveau weergeeft, telkens gebaseerd op de laatste 10 metingen.
+Maak een query die de gemiddelde luchtvochtigheid in de keuken teruggeeft van de laatste 30 minuten, berekend per periode van 1 minuut.
 
 ### Oefening 10
 
-InfluxDB heeft ook een makkelijkere manier om queries te bouwen.
-1. Klik op 'QUERY BUILDER'.
-2. Kies 
-    - bij FROM de **timeseries** bucket
-    - een filter '_measurement' met waarde **factory**,
-    - een filter 'type' met waarde **sensor**,
-    - en een filter '_field' met waarde **value**.
+Maak een query die voor de voorbije 30 minuten het *moving average* van de temperatuur weergeeft per ruimte, telkens gebaseerd op de laatste 40 metingen.
 
-    Zet verder ook
-    - het klokje (naast 'SCRIPT EDITOR') op **Past 15m**,
-    - 'Window period' (rechts) op **Custom 5s**,
-    - en tenslotte 'Aggregate function' op **mean**.
+### Oefening 11
 
-3. Druk op submit en bekijk het resultaat.
-4. Bedenk welke query je hier uitvoert. 
+Pas de query uit de vorige oefening aan zodat enkel de waarden voor de keuken en leefruimte teruggegeven worden.
+
+### Oefening 12
+
+Maak een query die, per 10 minuten van het voorbije uur, de maximale temperatuur teruggeeft over alle kamers heen.
