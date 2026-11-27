@@ -21,6 +21,8 @@
     - mqtt-simulator (een Python-script dat data genereert en verstuurt naar de MQTT broker)
     - node-red, bereikbaar op http://localhost:1880
     - grafana (visualisatie), bereikbaar op http://localhost:3000
+        * username `admin`
+        * password `admin`
 
 > Het --build argument zorgt ervoor dat, als je de python-code van de generator aanpast, de image elke opnieuw gebouwd wordt voor de container gestart wordt.
 
@@ -68,7 +70,10 @@ Voer de query uit door op de Inject-node te klikken.
 
 ### Oefening 6
 
-Open Grafana (http://localhost:3000) en voeg InfluxDB als data source toe met volgende parameters.
+Open Grafana (http://localhost:3000).
+Log in met admin/admin. Het wijzigen van het wachtwoord kan je overslaan.
+Voeg onder Connections een nieuwe connectie toe.
+Kies InfluxDB als data source toe met volgende parameters.
 - Query language: **InfluxQL**
 - URL: http://influxdb:8086
 - Database: timeseries
@@ -82,8 +87,15 @@ Klik op "Save & test".
 In Grafana kunnen we wél met InfluxQL als query-taal werken. Grafana biedt hiervoor een visuele editor.
 
 Ga naar de `Explore' tab en bouw een query die de temperatuur van de laatste 15 minuten teruggeeft, gegroepeerd per ruimte.
-
+Die query in de editor ziet er ongeveer als volgt uit:
+```sql
+FROM default climate WHERE
+SELECT field(temperature)
+GROUP BY tag(room::tag)
+```
 _Hint_: filteren op tijd doe je in Grafana via het klokje rechtsboven (daar kan je bv. ); niet rechtstreeks in de WHERE-clausule van je query.
+
+Merk op dat de editor de volgorde van de query-delen verandert tegenover standaard SQL syntax.
 
 ### Oefening 8
 

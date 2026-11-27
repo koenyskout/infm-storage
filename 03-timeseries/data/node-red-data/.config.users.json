@@ -14,8 +14,12 @@
                 "view-show-welcome-tours": true
             },
             "tours": {
-                "welcome": "4.1.0"
+                "welcome": "5.0.9"
             }
+        },
+        "debug": {
+            "filter": "filterAll",
+            "filteredNodes": []
         }
     }
 }
